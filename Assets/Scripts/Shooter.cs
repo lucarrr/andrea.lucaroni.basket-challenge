@@ -8,7 +8,8 @@ public class Shooter : MonoBehaviour
     public GameObject ballPrefab;
     public Transform shootingStart;
 
-    public float shootingAngle;
+    public float directShootingAngle = 70f, backboardShootingAngle = 68f;
+    public float precision =1f;
     private Vector3 distToHoop;
 
     void Start()
@@ -21,24 +22,49 @@ public class Shooter : MonoBehaviour
     {
 
         GameObject currentBall = Instantiate(ballPrefab, shootingStart.position, Quaternion.identity);
-        Vector3 vel = ComputeVelocity(angle);
+        Vector3 vel = ComputeVelocity(angle, ring.position);
 
         //Add and offset according to how precise the user was
-        Vector3 randomizedOffset = new Vector3(0.2f, .5f, .2f) * (1-precision);
+        Vector3 errorOffset = new Vector3(0.2f, .5f, .2f) * (1-precision);
+
+        Rigidbody rb = currentBall.GetComponent<Rigidbody>();
+        rb.velocity = vel  /* * randomizedOffset */;
+        rb.useGravity = true;
+    }
+
+    void ShootToBackboard(float precision, float angle)
+    {
+
+        GameObject currentBall = Instantiate(ballPrefab, shootingStart.position, Quaternion.identity);
+
+        //Compute the position of a mirrored bascket behind the backboard, for correctly bouncing in the rim
+        Vector3 backboardNormal = backboard.transform.forward;
+        Vector3 backboardNormalized = new Vector3(backboard.position.x, ring.position.y, backboard.position.z); 
+
+        Vector3 toHoop = ring.position - backboardNormalized;
+        Vector3 reflectedHoop = ring.position - 2 * Vector3.Dot(toHoop, backboardNormal) * backboardNormal;
+
+        Debug.DrawRay(backboard.position, toHoop, Color.yellow, 3f);
+        Debug.DrawLine(backboardNormalized,  reflectedHoop, Color.green, 3f);
+
+        Vector3 vel = ComputeVelocity(angle, reflectedHoop);
+
+        //Add and offset according to how precise the user was
+        Vector3 errordOffset = new Vector3(0.2f, .5f, .2f) * (1 - precision);
 
         Rigidbody rb = currentBall.GetComponent<Rigidbody>();
         rb.velocity = vel /* * randomizedOffset */;
         rb.useGravity = true;
     }
 
-    private Vector3 ComputeVelocity(float angleDeg)
+    private Vector3 ComputeVelocity(float angleDeg, Vector3 target)
     {   
         float gravity = Mathf.Abs(Physics.gravity.y);
 
         //Distance from player to The Ring
-        Vector3 distToHoop = (ring.position - shootingStart.position);
+        Vector3 distToHoop = (target - shootingStart.position);
 
-        Debug.Log(ring.position);
+        Debug.Log(target);
         Debug.Log(shootingStart.position);
 
         //Distance vector only on horizontal plane
@@ -80,6 +106,7 @@ public class Shooter : MonoBehaviour
     
     void Update()
     {
-        if(Input.GetKeyDown("space")) ShootToRing(1,shootingAngle);    
+        if(Input.GetKeyDown("p")) ShootToRing(precision,directShootingAngle);    
+        if(Input.GetKeyDown("o")) ShootToBackboard(precision,backboardShootingAngle);    
     }
 }
