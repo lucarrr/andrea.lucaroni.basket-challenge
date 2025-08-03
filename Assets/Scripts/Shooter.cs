@@ -25,10 +25,10 @@ public class Shooter : MonoBehaviour
         Vector3 vel = ComputeVelocity(angle, ring.position);
 
         //Add and offset according to how precise the user was
-        Vector3 errorOffset = new Vector3(0.2f, .5f, .2f) * (1-precision);
+        //Vector3 errorOffset = (1-precision);
 
         Rigidbody rb = currentBall.GetComponent<Rigidbody>();
-        rb.velocity = vel  /* * randomizedOffset */;
+        rb.velocity = vel * (precision);
         rb.useGravity = true;
     }
 
@@ -50,10 +50,13 @@ public class Shooter : MonoBehaviour
         Vector3 vel = ComputeVelocity(angle, reflectedHoop);
 
         //Add and offset according to how precise the user was
-        Vector3 errordOffset = new Vector3(0.2f, .5f, .2f) * (1 - precision);
+        //Vector3 errordOffset = new Vector3(0.2f, 0f, .2f) * (1 - precision);
+        
+        //Compensaition for pushing the ball directly at the center of the rim
+        Vector3 frictionCorrection = vel * 0.02f;
 
         Rigidbody rb = currentBall.GetComponent<Rigidbody>();
-        rb.velocity = vel /* * randomizedOffset */;
+        rb.velocity = (vel + frictionCorrection) * (precision);
         rb.useGravity = true;
     }
 
