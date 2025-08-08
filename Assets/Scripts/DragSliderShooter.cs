@@ -10,10 +10,42 @@ public class DragSliderShooter : MonoBehaviour
     private Vector2 lastInputPos;
     private bool isDragging = false;
     private float idleTimer = 0f;
+    private SliderRegionVisualizer regionVisualizer;
+
+    private float perfectShotThreshold = 0.4f, perfectBackboardThreshold = 0.6f, tolleranceRange= 0.06f, almostPerfectRange = 0.01f;
+    private float betweenRegionPadding = 0.1f;
+    private Shooter player;
 
     void Start()
     {
         shotSlider.enabled = false;
+        regionVisualizer = GetComponent<SliderRegionVisualizer>();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Shooter>();
+        NewShotThresholds();
+    }
+
+    public enum ShotType
+    {
+        //DirectMiss,
+        //BackboardMiss,
+        //RimHitDirect,
+        //RimHitBackboard,
+        //BackboardPerfect,
+        //DirectPerfect,
+        Direct,
+        Backboard
+    }
+
+    public struct ShotResult
+    {
+        public ShotType type;
+        public float precision;
+
+        public ShotResult(ShotType t, float p)
+        {
+            type = t;
+            precision = p;
+        }
     }
 
 
@@ -52,8 +84,11 @@ public class DragSliderShooter : MonoBehaviour
         }
 
         if (inputUp)  //Finished dragging Handler
-        {
-            //SHOOT
+        { 
+            Debug.Log($"Slider value: {shotSlider.value}");
+            ShotResult outcome = ShotOutcome(shotSlider.value);
+            Debug.Log($"Shot of type: {outcome.type}  with precision: {outcome.precision}"); 
+            player.Shoot((int)outcome.type, outcome.precision);
         }
     }
 
@@ -62,6 +97,80 @@ public class DragSliderShooter : MonoBehaviour
         isDragging = false;
         idleTimer = 0f;
         shotSlider.value = 0f;
+        NewShotThresholds();
+    }
+
+    public void NewShotThresholds()
+    {
+        perfectShotThreshold = Random.Range(0.4f, 1 - 2 * (tolleranceRange + almostPerfectRange) - betweenRegionPadding);
+        perfectBackboardThreshold = Random.Range(perfectShotThreshold + tolleranceRange + almostPerfectRange + betweenRegionPadding, 1 - tolleranceRange- almostPerfectRange);
+        
+        Debug.Log($"Almost Perfect Direct Treshold: {perfectShotThreshold - tolleranceRange - almostPerfectRange} ____" +
+            $" Direct Shot: {perfectShotThreshold - tolleranceRange} : {perfectShotThreshold + tolleranceRange} _____" +
+            $" Almost Perfect Backboard Treshold: {perfectBackboardThreshold - tolleranceRange - almostPerfectRange} ____" +
+            $" Backboard Treshold: {perfectBackboardThreshold - tolleranceRange} : {perfectBackboardThreshold + tolleranceRange} _____");
+        
+        regionVisualizer.NewShotRegions(perfectShotThreshold, perfectBackboardThreshold, tolleranceRange);
+    }
+
+    private ShotResult ShotOutcome(float sliderValue)
+    {
+        float precision = 0f;
+        float errorOffset = 0f;
+
+        if (sliderValue < perfectShotThreshold - tolleranceRange - almostPerfectRange) //SHORT SHOT
+        {
+            //INTERPOLATE PRECISION BETWEEN 0 and ALMOST PERFECT SHOOT (0.99f)
+            precision= sliderValue * 0.99f / perfectShotThreshold;
+            return new ShotResult(ShotType.Direct ,precision);
+        }
+        else if (sliderValue >= perfectShotThreshold - tolleranceRange - almostPerfectRange && sliderValue <= perfectShotThreshold - tolleranceRange) //ALMOST PERFECT DIRECT SHOT
+        {
+            //LITTLE UNDERSHOOT ERROR BUT THAT ENTERS
+            precision = 0.99f; 
+            return new ShotResult(ShotType.Direct, precision);
+        }
+        else if (sliderValue >= perfectShotThreshold - tolleranceRange && sliderValue <= perfectShotThreshold + tolleranceRange) //PERFECT DIRECT SHOT
+        {   
+            precision = 1f;
+            return new ShotResult(ShotType.Direct, precision);
+        }
+        else if (sliderValue > perfectShotThreshold + tolleranceRange && sliderValue < perfectShotThreshold + tolleranceRange + almostPerfectRange) //ALMOST PERFECT DIRECT SHOT
+        {   
+            //LITTLE OVERSHOOT ERROR BUT THAT ENTERS
+            precision = 1.01f; 
+            return new ShotResult(ShotType.Direct, precision);
+        }
+        else if (sliderValue > perfectShotThreshold + tolleranceRange + almostPerfectRange && sliderValue < perfectBackboardThreshold - tolleranceRange - almostPerfectRange) //MISS DIRECT
+        {   
+            //CALCULATE ERROR BY INTERPOLATING THE DISTANCE BETWEEN THE PERFECT VALUE and SLIDER VALUE
+            errorOffset = (sliderValue - perfectShotThreshold + tolleranceRange) * 0.5f;
+            precision = 1f + errorOffset;
+            return new ShotResult(ShotType.Direct, precision);
+        }
+        else if (sliderValue > perfectBackboardThreshold - tolleranceRange - almostPerfectRange && sliderValue < perfectBackboardThreshold - tolleranceRange) //ALMOST PERFECT BACKBOARD SHOT
+        {
+            precision = 0.95f;
+            return new ShotResult(ShotType.Backboard, precision);
+        }
+        else if (sliderValue > perfectBackboardThreshold - tolleranceRange && sliderValue < perfectBackboardThreshold + tolleranceRange) //PERFECT BACKBOARD SHOT
+        {
+            precision = 1f;
+            return new ShotResult(ShotType.Backboard, precision);
+        }
+        else if (sliderValue > perfectBackboardThreshold + tolleranceRange && sliderValue < perfectBackboardThreshold + tolleranceRange + almostPerfectRange) //ALMOST PERFECT BACKBOARD SHOT
+        {
+            precision = 1.01f;
+            return new ShotResult(ShotType.Backboard, precision);
+        }
+        else if(sliderValue > perfectBackboardThreshold + tolleranceRange) //MISS BACKBOARD LONG
+        {
+            //CALCULATE ERROR BY INTERPOLATING THE DISTANCE BETWEEN THE PERFECT BACKBOARD VALUE and SLIDER VALUE(0.99f)
+            errorOffset = (sliderValue - perfectBackboardThreshold + tolleranceRange) * 0.5f;
+            precision = 1f + errorOffset;
+            return new ShotResult(ShotType.Backboard, precision);
+        }
+        else return new ShotResult(ShotType.Direct, 0f);    
     }
 
 

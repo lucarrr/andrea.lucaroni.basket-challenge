@@ -18,9 +18,9 @@ public class Shooter : MonoBehaviour
         if (backboard == null) Debug.LogWarning("Backboard transform not assigned to shooter");
     }
 
-    void ShootToRing(float precision, float angle)
+    void ShootToRing(float precision)
     {
-
+        float angle = directShootingAngle;
         GameObject currentBall = Instantiate(ballPrefab, shootingStart.position, Quaternion.identity);
         Vector3 vel = ComputeVelocity(angle, ring.position);
 
@@ -32,9 +32,9 @@ public class Shooter : MonoBehaviour
         rb.useGravity = true;
     }
 
-    void ShootToBackboard(float precision, float angle)
+    void ShootToBackboard(float precision)
     {
-
+        float angle = backboardShootingAngle;
         GameObject currentBall = Instantiate(ballPrefab, shootingStart.position, Quaternion.identity);
 
         //Compute the position of a mirrored bascket behind the backboard, for correctly bouncing in the rim
@@ -67,8 +67,6 @@ public class Shooter : MonoBehaviour
         //Distance from player to The Ring
         Vector3 distToHoop = (target - shootingStart.position);
 
-        Debug.Log(target);
-        Debug.Log(shootingStart.position);
 
         //Distance vector only on horizontal plane
         Vector3 distToHoopXZ = new Vector3(distToHoop.x, 0f, distToHoop.z);
@@ -105,11 +103,17 @@ public class Shooter : MonoBehaviour
         Debug.DrawRay(shootingStart.position, shootingStart.position + velocity, Color.green, 3f);
         return velocity;
     }
-
     
+    public void Shoot(int type, float precision)
+    {
+        if (type == 0) ShootToRing(precision);
+        else ShootToBackboard(precision);
+    }
+
+
     void Update()
     {
-        if(Input.GetKeyDown("p")) ShootToRing(precision,directShootingAngle);    
-        if(Input.GetKeyDown("o")) ShootToBackboard(precision,backboardShootingAngle);    
+        if(Input.GetKeyDown("p")) ShootToRing(precision);    
+        if(Input.GetKeyDown("o")) ShootToBackboard(precision);    
     }
 }

@@ -37,12 +37,19 @@ public class SliderRegionVisualizer : MonoBehaviour
         activeRegions.Add(zone);
     }
 
-    public void NewShotRegions(float deltaHeight)
-    {
-        float startDirect = Random.Range(0.4f, 1 - 2 * deltaHeight);
-        float startBackboard = Random.Range(startDirect + deltaHeight, 1 - deltaHeight);
-        SetSliderRegion(startDirect, startDirect + deltaHeight, directShotColor);
-        SetSliderRegion(startBackboard, startBackboard + deltaHeight, backboardShotColor);
+    //public void NewShotRegions(float deltaHeight)
+    //{
+    //    float startDirect = Random.Range(0.4f, 1 - 2 * deltaHeight);
+    //    float startBackboard = Random.Range(startDirect + deltaHeight, 1 - deltaHeight);
+    //    SetSliderRegion(startDirect, startDirect + deltaHeight, directShotColor);
+    //    SetSliderRegion(startBackboard, startBackboard + deltaHeight, backboardShotColor);
+    //}
+
+    public void NewShotRegions(float startPerfect,float startBackboard,float epsilon)
+    {   
+        ResetRegions();
+        SetSliderRegion(startPerfect -epsilon, startPerfect + epsilon, directShotColor);
+        SetSliderRegion(startBackboard -epsilon, startBackboard + epsilon, backboardShotColor);
     }
 
     public void ResetRegions()
@@ -54,7 +61,7 @@ public class SliderRegionVisualizer : MonoBehaviour
 
     void Start()
     {
-        NewShotRegions(.1f);
+        //NewShotRegions(.4f, .6f, .1f);
         //SetSliderRegion(0.4f, 0.5f, directShotColor);
         //SetSliderRegion(0.7f, 0.8f, backboardShotColor);
     }
