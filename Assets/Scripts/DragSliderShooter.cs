@@ -2,19 +2,25 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class DragSliderShooter : MonoBehaviour
-{
+{   
+    //REFERENCES
     public Slider shotSlider;
-    public float sliderSpeed = 0.005f;
-    public float idleTimeBeforeShoot = 0.4f;
+    private Shooter player;
+    private SliderRegionVisualizer regionVisualizer;
 
+    //FUNCTIONAL VARIABLES
     private Vector2 lastInputPos;
     private bool isDragging = false;
     private float idleTimer = 0f;
-    private SliderRegionVisualizer regionVisualizer;
 
-    private float perfectShotThreshold = 0.4f, perfectBackboardThreshold = 0.6f, tolleranceRange= 0.06f, almostPerfectRange = 0.01f;
+    //GAMEPLAY SETTINGS
+    public float sliderSpeed = 0.005f;
+    private float idleTimeBeforeShoot = 0.4f;
+    private float precisionDirectAPShort = 0.99f, precisionDirectAPLong = 1.01f; //Precision necessary for almost perfect Direct Shots
+    private float precisionBackboardAPShort = 0.96f, precisionBackboardAPLong = 1.01f; //Precision necessary for almost perfect Backboard Shots
+    private float perfectShotThreshold = 0.4f, perfectBackboardThreshold = 0.6f, tolleranceRange= 0.05f, almostPerfectRange = 0.02f;
     private float betweenRegionPadding = 0.1f;
-    private Shooter player;
+    
 
     void Start()
     {
@@ -113,6 +119,7 @@ public class DragSliderShooter : MonoBehaviour
         regionVisualizer.NewShotRegions(perfectShotThreshold, perfectBackboardThreshold, tolleranceRange);
     }
 
+    //Establish the precision of the shot according to the stablished zone in the slider
     private ShotResult ShotOutcome(float sliderValue)
     {
         float precision = 0f;
@@ -121,13 +128,13 @@ public class DragSliderShooter : MonoBehaviour
         if (sliderValue < perfectShotThreshold - tolleranceRange - almostPerfectRange) //SHORT SHOT
         {
             //INTERPOLATE PRECISION BETWEEN 0 and ALMOST PERFECT SHOOT (0.99f)
-            precision= sliderValue * 0.99f / perfectShotThreshold;
+            precision= sliderValue * precisionDirectAPShort / perfectShotThreshold;
             return new ShotResult(ShotType.Direct ,precision);
         }
         else if (sliderValue >= perfectShotThreshold - tolleranceRange - almostPerfectRange && sliderValue <= perfectShotThreshold - tolleranceRange) //ALMOST PERFECT DIRECT SHOT
         {
             //LITTLE UNDERSHOOT ERROR BUT THAT ENTERS
-            precision = 0.99f; 
+            precision = precisionDirectAPShort; 
             return new ShotResult(ShotType.Direct, precision);
         }
         else if (sliderValue >= perfectShotThreshold - tolleranceRange && sliderValue <= perfectShotThreshold + tolleranceRange) //PERFECT DIRECT SHOT
@@ -138,7 +145,7 @@ public class DragSliderShooter : MonoBehaviour
         else if (sliderValue > perfectShotThreshold + tolleranceRange && sliderValue < perfectShotThreshold + tolleranceRange + almostPerfectRange) //ALMOST PERFECT DIRECT SHOT
         {   
             //LITTLE OVERSHOOT ERROR BUT THAT ENTERS
-            precision = 1.01f; 
+            precision = precisionDirectAPLong; 
             return new ShotResult(ShotType.Direct, precision);
         }
         else if (sliderValue > perfectShotThreshold + tolleranceRange + almostPerfectRange && sliderValue < perfectBackboardThreshold - tolleranceRange - almostPerfectRange) //MISS DIRECT
@@ -150,7 +157,7 @@ public class DragSliderShooter : MonoBehaviour
         }
         else if (sliderValue > perfectBackboardThreshold - tolleranceRange - almostPerfectRange && sliderValue < perfectBackboardThreshold - tolleranceRange) //ALMOST PERFECT BACKBOARD SHOT
         {
-            precision = 0.95f;
+            precision = precisionBackboardAPShort;
             return new ShotResult(ShotType.Backboard, precision);
         }
         else if (sliderValue > perfectBackboardThreshold - tolleranceRange && sliderValue < perfectBackboardThreshold + tolleranceRange) //PERFECT BACKBOARD SHOT
@@ -160,13 +167,13 @@ public class DragSliderShooter : MonoBehaviour
         }
         else if (sliderValue > perfectBackboardThreshold + tolleranceRange && sliderValue < perfectBackboardThreshold + tolleranceRange + almostPerfectRange) //ALMOST PERFECT BACKBOARD SHOT
         {
-            precision = 1.01f;
+            precision = precisionBackboardAPLong;
             return new ShotResult(ShotType.Backboard, precision);
         }
         else if(sliderValue > perfectBackboardThreshold + tolleranceRange) //MISS BACKBOARD LONG
         {
             //CALCULATE ERROR BY INTERPOLATING THE DISTANCE BETWEEN THE PERFECT BACKBOARD VALUE and SLIDER VALUE(0.99f)
-            errorOffset = (sliderValue - perfectBackboardThreshold + tolleranceRange) * 0.5f;
+            errorOffset = (sliderValue - perfectBackboardThreshold + tolleranceRange) * 0.3f;
             precision = 1f + errorOffset;
             return new ShotResult(ShotType.Backboard, precision);
         }
