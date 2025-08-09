@@ -9,14 +9,10 @@ public class BasketDetector : MonoBehaviour
     private void OnTriggerEnter(Collider coll)
     {
         if (coll.gameObject.CompareTag("Ball"))
-        {
-            baskets ++;
+        {   
+            BallBehaviour ball= coll.gameObject.GetComponent<BallBehaviour>();
+            ScoreManager.Instance.BallInBasket(ball.state);
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
