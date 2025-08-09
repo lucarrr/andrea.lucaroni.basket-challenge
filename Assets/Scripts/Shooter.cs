@@ -106,6 +106,7 @@ public class Shooter : MonoBehaviour
     
     public void Shoot(int type, float precision)
     {
+        GameEvents.OnShootStarted.Invoke();
         if (type == 0) ShootToRing(precision);
         else ShootToBackboard(precision);
     }

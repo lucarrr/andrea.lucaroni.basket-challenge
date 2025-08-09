@@ -983,7 +983,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 716528144}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0.02011753, y: 1.2386689, z: -3.396}
+  m_LocalPosition: {x: -3, y: 1.238669, z: -2.864}
   m_LocalScale: {x: 0.7583983, y: 0.7583983, z: 0.7583983}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1018,7 +1018,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 716528144}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b903da5e3dde8b04ea1f660795a6d7bd, type: 3}
   m_Name: 
@@ -1033,7 +1033,7 @@ CharacterController:
   m_GameObject: {fileID: 716528144}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Height: 2
   m_Radius: 0.5
@@ -1807,6 +1807,8 @@ GameObject:
   - component: {fileID: 1116422422}
   - component: {fileID: 1116422423}
   - component: {fileID: 1116422424}
+  - component: {fileID: 1116422426}
+  - component: {fileID: 1116422425}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -1842,8 +1844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotSlider: {fileID: 909288734}
-  sliderSpeed: 0.001
-  idleTimeBeforeShoot: 0.4
+  sliderSpeed: 0.002
 --- !u!114 &1116422424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1861,6 +1862,40 @@ MonoBehaviour:
   regionPrefab: {fileID: 1594246236222548553, guid: 7375be4771dbc1046919b805f5f1b176, type: 3}
   directShotColor: {r: 0.41039515, g: 0.8301887, b: 0.45587277, a: 1}
   backboardShotColor: {r: 0.52146375, g: 0.13029549, b: 0.5660378, a: 1}
+--- !u!114 &1116422425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1116422420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2666756ee4c4f14588271eeb00af597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spotMng: {fileID: 1116422426}
+  gamePhase: 1
+  gameplayState: 0
+  shotDuration: 3
+--- !u!114 &1116422426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1116422420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d9ab59a10334d042a220bc451b5d478, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shootingSpots:
+  - {fileID: 1216657735}
+  - {fileID: 119436652}
+  - {fileID: 1063451211}
+  rim: {fileID: 346690244}
+  player: {fileID: 0}
 --- !u!1 &1166369803
 GameObject:
   m_ObjectHideFlags: 0
