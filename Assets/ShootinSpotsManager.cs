@@ -12,6 +12,7 @@ public class ShootinSpotsManager : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        SwitchPos();
     }
     
     public void SwitchPos()
@@ -19,6 +20,7 @@ public class ShootinSpotsManager : MonoBehaviour
         int randomSpot = Random.Range(0, shootingSpots.Length);
         player.position= shootingSpots[randomSpot].position;
         player.LookAt(new Vector3 (rim.position.x, player.position.y, rim.position.z));
+        GameEvents.OnRelocatePlayer.Invoke();
     }
 
 }

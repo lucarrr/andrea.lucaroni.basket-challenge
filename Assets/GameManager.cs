@@ -22,6 +22,7 @@ public class GameEvents
 {
     public static Action OnShootStarted;
     public static Action OnShotFinished;
+    public static Action OnRelocatePlayer;
 }
 
 public class GameManager : MonoBehaviour
@@ -32,7 +33,7 @@ public class GameManager : MonoBehaviour
     public GamePhases gamePhase = GamePhases.Gameplay;
     public GamePlayState gameplayState = GamePlayState.ReadyToShoot;
 
-    public float shotDuration = 3f;
+    public float shotDuration = 2.5f;
     
     void OnEnable()
     {
