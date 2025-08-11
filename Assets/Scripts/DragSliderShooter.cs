@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class DragSliderShooter : MonoBehaviour
 {   
@@ -63,6 +64,7 @@ public class DragSliderShooter : MonoBehaviour
         bool inputHeld = GetInputHeld(out currentInput);
         bool inputUp = GetInputUp();
 
+        if (GameManager.gamePhase != GamePhases.Gameplay) return;
 
         if (inputDown) // First Input Handler
         {
@@ -81,7 +83,7 @@ public class DragSliderShooter : MonoBehaviour
 
         }
 
-        if (inputUp && GameManager.gameplayState == GamePlayState.ReadyToShoot)  //Finished dragging Handler
+        if (inputUp && isDragging && GameManager.gameplayState == GamePlayState.ReadyToShoot)  //Finished dragging Handler
         {
             Shoot(shotSlider.value);
             shootTimeOut = true;
@@ -204,12 +206,18 @@ public class DragSliderShooter : MonoBehaviour
     bool GetInputDown(out Vector2 pos)
     {
 #if UNITY_ANDROID || UNITY_IOS
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
         {
             pos = Input.GetTouch(0).position;
             return true;
         }
-#else
+#else   
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            // Click was on UI, ignore shooting
+            return false;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             pos = Input.mousePosition;
@@ -225,7 +233,7 @@ public class DragSliderShooter : MonoBehaviour
     bool GetInputHeld(out Vector2 pos)
     {
 #if UNITY_ANDROID || UNITY_IOS
-        if (Input.touchCount > 0)
+        if (Input.touchCount > 0 && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
         {
             var touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
@@ -234,7 +242,13 @@ public class DragSliderShooter : MonoBehaviour
                 return true;
             }
         }
-#else
+#else   
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            // Click was on UI, ignore shooting
+            return false;
+        }
+
         if (Input.GetMouseButton(0))
         {
             pos = Input.mousePosition;
@@ -249,8 +263,14 @@ public class DragSliderShooter : MonoBehaviour
     bool GetInputUp()
     {
 #if UNITY_ANDROID || UNITY_IOS
-        return Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended;
-#else
+        return Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+#else   
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            // Click was on UI, ignore shooting
+            return false;
+        }
+
         return Input.GetMouseButtonUp(0);
 #endif
     }

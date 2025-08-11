@@ -31,8 +31,8 @@ public class GameManager : MonoBehaviour
     //REFERENCES 
     public ShootinSpotsManager spotMng;
 
-    public GamePhases gamePhase = GamePhases.Gameplay;
-    public static GamePlayState gameplayState = GamePlayState.ReadyToShoot;
+    public static GamePhases gamePhase = GamePhases.Standby;
+    public static GamePlayState gameplayState;
 
     public float shotDuration = 2.5f;
     
