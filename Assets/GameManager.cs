@@ -23,6 +23,7 @@ public class GameEvents
     public static Action OnShootStarted;
     public static Action OnShotFinished;
     public static Action OnRelocatePlayer;
+    public static Action OnGameStarted;
 }
 
 public class GameManager : MonoBehaviour
@@ -31,7 +32,7 @@ public class GameManager : MonoBehaviour
     public ShootinSpotsManager spotMng;
 
     public GamePhases gamePhase = GamePhases.Gameplay;
-    public GamePlayState gameplayState = GamePlayState.ReadyToShoot;
+    public static GamePlayState gameplayState = GamePlayState.ReadyToShoot;
 
     public float shotDuration = 2.5f;
     
@@ -39,6 +40,7 @@ public class GameManager : MonoBehaviour
     {
         GameEvents.OnShootStarted += HandleShoot;
         GameEvents.OnShotFinished += HandleShotFinished;
+        GameEvents.OnGameStarted += StartGame;
     }
 
     void Start()

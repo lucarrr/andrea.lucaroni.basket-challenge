@@ -62,6 +62,7 @@ public class DragSliderShooter : MonoBehaviour
         bool inputHeld = GetInputHeld(out currentInput);
         bool inputUp = GetInputUp();
 
+
         if (inputDown) // First Input Handler
         {
             isDragging = true;
@@ -89,7 +90,7 @@ public class DragSliderShooter : MonoBehaviour
             }
         }
 
-        if (inputUp)  //Finished dragging Handler
+        if (inputUp && GameManager.gameplayState == GamePlayState.ReadyToShoot)  //Finished dragging Handler
         { 
             Debug.Log($"Slider value: {shotSlider.value}");
             ShotResult outcome = ShotOutcome(shotSlider.value);
@@ -151,7 +152,7 @@ public class DragSliderShooter : MonoBehaviour
         else if (sliderValue > perfectShotThreshold + tolleranceRange + almostPerfectRange && sliderValue < perfectBackboardThreshold - tolleranceRange - almostPerfectRange) //MISS DIRECT
         {   
             //CALCULATE ERROR BY INTERPOLATING THE DISTANCE BETWEEN THE PERFECT VALUE and SLIDER VALUE
-            errorOffset = (sliderValue - perfectShotThreshold + tolleranceRange) * 0.5f;
+            errorOffset = (sliderValue - perfectShotThreshold + tolleranceRange) * 0.3f;
             precision = 1f + errorOffset;
             return new ShotResult(ShotType.Direct, precision);
         }
