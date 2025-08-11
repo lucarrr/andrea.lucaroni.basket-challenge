@@ -11,11 +11,12 @@ public class DragSliderShooter : MonoBehaviour
     //FUNCTIONAL VARIABLES
     private Vector2 lastInputPos;
     private bool isDragging = false;
-    private float idleTimer = 0f;
+    private float shootTimer = 0f, resetTimer = 0f;
+    private bool shootTimeOut = false;
 
     //GAMEPLAY SETTINGS
     public float sliderSpeed = 0.005f;
-    private float idleTimeBeforeShoot = 0.4f;
+    private float timeToShoot = 1.0f, timeBeforeReset= 0.5f;
     private float precisionDirectAPShort = 0.99f, precisionDirectAPLong = 1.01f; //Precision necessary for almost perfect Direct Shots
     private float precisionBackboardAPShort = 0.96f, precisionBackboardAPLong = 1.01f; //Precision necessary for almost perfect Backboard Shots
     private float perfectShotThreshold = 0.4f, perfectBackboardThreshold = 0.6f, tolleranceRange= 0.05f, almostPerfectRange = 0.02f;
@@ -67,42 +68,59 @@ public class DragSliderShooter : MonoBehaviour
         {
             isDragging = true;
             lastInputPos = currentInput;
-            idleTimer = 0f;
         }
 
-        if (inputHeld && isDragging) // Moving finger/mouse handler
+        if (inputHeld && isDragging && GameManager.gameplayState == GamePlayState.ReadyToShoot) // Moving finger/mouse handler
         {
             float deltaY = currentInput.y - lastInputPos.y;
-            if (deltaY < 0) { return; }
+            if (deltaY < 0f) {
+                return;
+            }
             shotSlider.value = Mathf.Clamp01(shotSlider.value + deltaY * sliderSpeed);
             lastInputPos = currentInput;
 
-            // Reset timer while dragging
-            idleTimer = 0f;
-        }
-
-        if (!inputHeld && isDragging) //Stationary Handler
-        {
-            idleTimer += Time.deltaTime;
-            if (idleTimer >= idleTimeBeforeShoot)
-            {
-                ResetSlider();
-            }
         }
 
         if (inputUp && GameManager.gameplayState == GamePlayState.ReadyToShoot)  //Finished dragging Handler
-        { 
-            Debug.Log($"Slider value: {shotSlider.value}");
-            ShotResult outcome = ShotOutcome(shotSlider.value);
-            Debug.Log($"Shot of type: {outcome.type}  with precision: {outcome.precision}"); 
-            player.Shoot((int)outcome.type, outcome.precision);
+        {
+            Shoot(shotSlider.value);
+            shootTimeOut = true;
         }
+
+        if (!inputUp && isDragging && GameManager.gameplayState == GamePlayState.ReadyToShoot)
+        {
+            shootTimer += Time.deltaTime;
+            if (shootTimer >= timeToShoot)
+            {
+                Shoot(shotSlider.value);
+                shootTimeOut = true;
+                shootTimer = 0f;
+            }
+        }
+
+        if (shootTimeOut) 
+        {
+            resetTimer += Time.deltaTime;
+            if (resetTimer >= timeBeforeReset)
+            {
+                ResetSlider();
+                shootTimeOut = false;
+                resetTimer = 0f;
+            }
+        }
+    }
+
+    private void Shoot(float power)
+    {
+        Debug.Log($"Slider value: {power}");
+        ShotResult outcome = ShotOutcome(power);
+        Debug.Log($"Shot of type: {outcome.type}  with precision: {outcome.precision}");
+        player.Shoot((int)outcome.type, outcome.precision);
     }
 
     void ResetSlider()
     {
         isDragging = false;
-        idleTimer = 0f;
         shotSlider.value = 0f;
         NewShotThresholds();
     }
