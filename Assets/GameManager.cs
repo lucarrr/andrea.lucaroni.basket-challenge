@@ -24,12 +24,14 @@ public class GameEvents
     public static Action OnShotFinished;
     public static Action OnRelocatePlayer;
     public static Action OnGameStarted;
+    public static Action OnGameEnded;
 }
 
 public class GameManager : MonoBehaviour
 {
     //REFERENCES 
-    public ShootinSpotsManager spotMng;
+    [SerializeField] private ShootinSpotsManager spotMng;
+    [SerializeField] private TimerManager timerManager;
 
     public static GamePhases gamePhase = GamePhases.Standby;
     public static GamePlayState gameplayState;
@@ -46,6 +48,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         if(!spotMng) spotMng = GetComponent<ShootinSpotsManager>();
+        if(!timerManager) timerManager = GetComponent<TimerManager>();
     }
 
     void Update()
@@ -108,11 +111,20 @@ public class GameManager : MonoBehaviour
     {
         gamePhase = GamePhases.Gameplay;
         gameplayState = GamePlayState.ReadyToShoot;
+
+        timerManager.StartTimer();
+        timerManager.OnTimerEnd += GameEnd;
     }
 
     void StartStandby()
     {
         gamePhase = GamePhases.Standby;
+    }
+
+    void GameEnd()
+    {
+        gamePhase = GamePhases.EndScreen;
+        GameEvents.OnGameEnded?.Invoke();  
     }
 
     void HandleShoot()

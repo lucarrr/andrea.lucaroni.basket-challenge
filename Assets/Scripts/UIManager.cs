@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         ShowStartUI();
+        GameEvents.OnGameEnded += ShowEndUI;
     }
 
     public void ShowStartUI()
