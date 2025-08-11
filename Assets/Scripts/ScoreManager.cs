@@ -23,6 +23,11 @@ public class ScoreManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    void Start()
+    {
+        GameEvents.OnGameStarted += ResetScore;
+    }
+
     private void AddPoints(int points)
     {
         CurrentScore += points;

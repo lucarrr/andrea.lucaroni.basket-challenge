@@ -6,11 +6,13 @@ public class UIManager : MonoBehaviour
     public GameObject startPanel;
     public GameObject endPanel;
     public GameObject shootingSlider;
+    public TMPro.TextMeshProUGUI scoreText;
 
     void Start()
     {
         ShowStartUI();
         GameEvents.OnGameEnded += ShowEndUI;
+        ScoreManager.Instance.OnScoreChanged += UpdateScoreUI;
     }
 
     public void ShowStartUI()
@@ -32,6 +34,11 @@ public class UIManager : MonoBehaviour
     {
         endPanel.SetActive(true);
         shootingSlider?.gameObject.SetActive(false);
+    }
+
+    void UpdateScoreUI(int newScore)
+    {
+        scoreText.text = newScore.ToString();
     }
 
     public void RestartGame()
