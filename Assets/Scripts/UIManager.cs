@@ -23,6 +23,7 @@ public class UIManager : MonoBehaviour
     public void StartGame()
     {
         startPanel.SetActive(false);
+        endPanel.SetActive(false);
         shootingSlider.gameObject.SetActive(true);
         GameEvents.OnGameStarted?.Invoke();
     }
