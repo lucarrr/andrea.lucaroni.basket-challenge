@@ -5,11 +5,18 @@ using UnityEngine;
 public class BasketDetector : MonoBehaviour
 {   
     public int baskets = 0;
+    public AudioSource ad;
+
+    void Start()
+    {
+        if (!ad) ad = GetComponent<AudioSource>();
+    }
 
     private void OnTriggerEnter(Collider coll)
     {
         if (coll.gameObject.CompareTag("Ball"))
         {   
+            ad.Play();
             BallBehaviour ball= coll.gameObject.GetComponent<BallBehaviour>();
             ScoreManager.Instance.BallInBasket(ball.state);
         }
