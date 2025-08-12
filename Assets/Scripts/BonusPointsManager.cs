@@ -8,18 +8,23 @@ public class BonusPointsManager : MonoBehaviour
     private int shotsTaken = 0;
     private bool bonusActive = false;
 
+    [Range(0f, 1f)]
+    public float activationChance = 0.25f;
+
     public void RegisterShot(bool wasBackboardShot)
     {
-        shotsTaken++;
-
-        if (!bonusActive && shotsTaken >= 3)
+        if (bonusActive)
         {
-            ActivateBonus();
+            if (wasBackboardShot)
+            {
+                DeactivateBonus();
+            }
+            return;
         }
 
-        if (bonusActive && wasBackboardShot)
+        if (Random.value < activationChance)
         {
-            DeactivateBonus();
+            ActivateBonus();
         }
     }
 
