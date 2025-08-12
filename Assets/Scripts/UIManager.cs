@@ -6,7 +6,7 @@ public class UIManager : MonoBehaviour
     public GameObject startPanel;
     public GameObject endPanel;
     public GameObject shootingSlider;
-    public TMPro.TextMeshProUGUI scoreText;
+    public TMPro.TextMeshProUGUI backboardScoreText, scoreText;
 
     void Start()
     {
@@ -39,6 +39,7 @@ public class UIManager : MonoBehaviour
     void UpdateScoreUI(int newScore)
     {
         scoreText.text = newScore.ToString();
+        backboardScoreText.text = newScore.ToString();
     }
 
     public void RestartGame()
