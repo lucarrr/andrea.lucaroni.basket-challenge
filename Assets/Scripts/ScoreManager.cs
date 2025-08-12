@@ -10,6 +10,8 @@ public class ScoreManager : MonoBehaviour
     public event Action<int> OnScoreChanged;
 
     private int pointForClean = 3, pointForBackboard = 2, pointForDirty = 2;
+    private int bonusBackboard = 6;
+    public BonusPointsManager bonusManager;
 
 
     private void Awake()
@@ -26,6 +28,7 @@ public class ScoreManager : MonoBehaviour
     void Start()
     {
         GameEvents.OnGameStarted += ResetScore;
+        if (!bonusManager) bonusManager = GetComponent<BonusPointsManager>(); 
     }
 
     private void AddPoints(int points)
@@ -47,15 +50,23 @@ public class ScoreManager : MonoBehaviour
         switch (ball)
         {   
             case BallBehaviour.BallState.TouchedBackboard:
+                bonusManager.RegisterShot(true); // Because is backboard shot
                 p = pointForBackboard;
+                if (bonusManager.IsBonusActive())
+                {
+                    p += bonusBackboard;
+                }
                 break;
             case BallBehaviour.BallState.CleanShot:
+                bonusManager.RegisterShot(false);
                 p = pointForClean;
                 break;
             case BallBehaviour.BallState.TouchedRim:
+                bonusManager.RegisterShot(false);
                 p = pointForDirty;
                 break;
         }
+
 
         AddPoints(p);
        
