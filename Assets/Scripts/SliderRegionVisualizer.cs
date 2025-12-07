@@ -9,16 +9,17 @@ public class SliderRegionVisualizer : MonoBehaviour
     public RectTransform sliderFillArea;
 
     public GameObject regionPrefab;
-    private List<GameObject> activeRegions = new List<GameObject>(); 
 
     public Color directShotColor, backboardShotColor; 
+
+    private GameObject perfectShotZone, backboardShotZone;
     
-    private void SetSliderRegion(float startPercent, float endPercent, Color color)
+    private void SetSliderRegion(float startPercent, float endPercent, Color color, GameObject zone)
     {
 
         float sliderHeight = sliderFillArea.rect.height;
 
-        GameObject zone = Instantiate(regionPrefab, regionContainer);
+        //GameObject zone = Instantiate(regionPrefab, regionContainer);
         RectTransform rt = zone.GetComponent<RectTransform>(); 
 
         float regionStartY = startPercent * sliderHeight;
@@ -34,7 +35,6 @@ public class SliderRegionVisualizer : MonoBehaviour
 
         zone.GetComponent<Image>().color = color;
 
-        activeRegions.Add(zone);
     }
 
     //public void NewShotRegions(float deltaHeight)
@@ -46,24 +46,15 @@ public class SliderRegionVisualizer : MonoBehaviour
     //}
 
     public void NewShotRegions(float startPerfect,float startBackboard,float epsilon)
-    {   
-        ResetRegions();
-        SetSliderRegion(startPerfect -epsilon, startPerfect + epsilon, directShotColor);
-        SetSliderRegion(startBackboard -epsilon, startBackboard + epsilon, backboardShotColor);
-    }
-
-    public void ResetRegions()
     {
-        foreach (var sr in activeRegions)
-            Destroy(sr);
-        activeRegions.Clear();
-    }
+        if (!perfectShotZone || !backboardShotZone)
+        {
+            perfectShotZone = Instantiate(regionPrefab, regionContainer);
+            backboardShotZone = Instantiate(regionPrefab, regionContainer);
+        }
 
-    void Start()
-    {
-        //NewShotRegions(.4f, .6f, .1f);
-        //SetSliderRegion(0.4f, 0.5f, directShotColor);
-        //SetSliderRegion(0.7f, 0.8f, backboardShotColor);
+        SetSliderRegion(startPerfect -epsilon, startPerfect + epsilon, directShotColor, perfectShotZone);
+        SetSliderRegion(startBackboard -epsilon, startBackboard + epsilon, backboardShotColor, backboardShotZone);
     }
 
     
