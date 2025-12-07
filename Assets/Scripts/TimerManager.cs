@@ -9,6 +9,7 @@ public class TimerManager : MonoBehaviour
 
     private float timeRemaining;
     private bool isRunning = false;
+    private int lastDisplayedSeconds = -1;
 
     public event Action OnTimerEnd; // Game over event
 
@@ -31,9 +32,15 @@ public class TimerManager : MonoBehaviour
             isRunning = false;
             UpdateTimerUI();
             OnTimerEnd?.Invoke(); // Call Game Over
+            return;
         }
-        else
+
+
+        // Only update when the displayed second changes
+        int currentSeconds = Mathf.FloorToInt(timeRemaining);
+        if (currentSeconds != lastDisplayedSeconds)
         {
+            lastDisplayedSeconds = currentSeconds;
             UpdateTimerUI();
         }
     }
@@ -43,6 +50,8 @@ public class TimerManager : MonoBehaviour
         // Format as MM:SS
         int minutes = Mathf.FloorToInt(timeRemaining / 60f);
         int seconds = Mathf.FloorToInt(timeRemaining % 60f);
-        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+
+        //timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        timerText.text = minutes.ToString("00") + ":" + seconds.ToString("00");
     }
 }
